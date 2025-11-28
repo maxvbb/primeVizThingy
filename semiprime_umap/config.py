@@ -6,11 +6,20 @@ from pathlib import Path
 MAX_N = 10_000_000  # Maximum semiprime value
 NUM_RESIDUE_PRIMES = 200  # Number of primes for residue computation
 
+# Dimensionality reduction method: "umap" or "pacmap"
+DIMRED_METHOD = "umap"
+
 # UMAP parameters
 UMAP_N_NEIGHBORS = 15
 UMAP_MIN_DIST = 0.1
 UMAP_METRIC = "euclidean"  # Can also use "cosine"
 UMAP_RANDOM_STATE = 42
+
+# PacMAP parameters
+PACMAP_N_NEIGHBORS = 10
+PACMAP_MN_RATIO = 0.5
+PACMAP_FP_RATIO = 2.0
+PACMAP_RANDOM_STATE = 42
 
 # Difficulty computation
 FERMAT_MAX_ITERATIONS = 10_000

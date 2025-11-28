@@ -11,26 +11,28 @@ from . import config
 from .generate_semiprimes import generate_semiprimes, compute_basic_metadata
 from .compute_residues import compute_residue_vectors
 from .compute_difficulty import compute_all_difficulty_metrics
-from .run_umap import run_umap_2d_and_3d, save_embeddings
+from .run_umap import run_2d_and_3d, save_embeddings
 from .visualize import create_interactive_html, create_static_plots, create_3d_visualization
 
 
 def run_pipeline(
     max_n: int | None = None,
     num_residue_primes: int | None = None,
+    dimred_method: str | None = None,
     skip_difficulty: bool = False,
-    skip_umap: bool = False,
+    skip_dimred: bool = False,
     skip_viz: bool = False,
     load_existing: bool = False
 ):
     """
-    Run the full semiprime UMAP pipeline.
+    Run the full semiprime visualization pipeline.
 
     Args:
         max_n: Maximum semiprime value (default from config)
         num_residue_primes: Number of primes for residue vectors
+        dimred_method: Dimensionality reduction method ('umap' or 'pacmap')
         skip_difficulty: Skip difficulty metric computation
-        skip_umap: Skip UMAP computation (use existing)
+        skip_dimred: Skip dimensionality reduction (use existing embeddings)
         skip_viz: Skip visualization generation
         load_existing: Load existing data instead of regenerating
     """
@@ -38,18 +40,27 @@ def run_pipeline(
         max_n = config.MAX_N
     if num_residue_primes is None:
         num_residue_primes = config.NUM_RESIDUE_PRIMES
+    if dimred_method is None:
+        dimred_method = config.DIMRED_METHOD
 
     start_time = time.time()
 
+    method_upper = dimred_method.upper()
     print("="*70)
-    print("SEMIPRIME UMAP VISUALIZATION PIPELINE")
+    print(f"SEMIPRIME {method_upper} VISUALIZATION PIPELINE")
     print("="*70)
     print(f"Configuration:")
     print(f"  MAX_N: {max_n:,}")
     print(f"  NUM_RESIDUE_PRIMES: {num_residue_primes}")
-    print(f"  UMAP_N_NEIGHBORS: {config.UMAP_N_NEIGHBORS}")
-    print(f"  UMAP_MIN_DIST: {config.UMAP_MIN_DIST}")
-    print(f"  UMAP_METRIC: {config.UMAP_METRIC}")
+    print(f"  DIMRED_METHOD: {dimred_method}")
+    if dimred_method.lower() == "umap":
+        print(f"  UMAP_N_NEIGHBORS: {config.UMAP_N_NEIGHBORS}")
+        print(f"  UMAP_MIN_DIST: {config.UMAP_MIN_DIST}")
+        print(f"  UMAP_METRIC: {config.UMAP_METRIC}")
+    else:
+        print(f"  PACMAP_N_NEIGHBORS: {config.PACMAP_N_NEIGHBORS}")
+        print(f"  PACMAP_MN_RATIO: {config.PACMAP_MN_RATIO}")
+        print(f"  PACMAP_FP_RATIO: {config.PACMAP_FP_RATIO}")
     print("="*70)
 
     # Step 1: Generate or load semiprimes
@@ -105,7 +116,7 @@ def run_pipeline(
     print(f"Data saved. Shape: {df.shape}")
 
     # Step 4: Compute residue vectors
-    if not skip_umap:
+    if not skip_dimred:
         print("\n[STEP 4] Computing residue vectors...")
         step_start = time.time()
 
@@ -118,20 +129,20 @@ def run_pipeline(
 
         gc.collect()
 
-        # Step 5: Run UMAP
-        print("\n[STEP 5] Running UMAP dimensionality reduction...")
+        # Step 5: Run dimensionality reduction
+        print(f"\n[STEP 5] Running {method_upper} dimensionality reduction...")
         step_start = time.time()
 
-        embedding_2d, embedding_3d = run_umap_2d_and_3d(residue_matrix)
+        embedding_2d, embedding_3d = run_2d_and_3d(residue_matrix, method=dimred_method)
         save_embeddings(embedding_2d, embedding_3d)
 
-        print(f"UMAP completed in {time.time() - step_start:.1f}s")
+        print(f"{method_upper} completed in {time.time() - step_start:.1f}s")
 
         # Clean up large arrays
         del residue_matrix
         gc.collect()
     else:
-        print("\n[STEP 4-5] Loading existing UMAP embeddings...")
+        print("\n[STEP 4-5] Loading existing embeddings...")
         embedding_2d = np.load(config.UMAP_2D_FILE)
         embedding_3d = np.load(config.UMAP_3D_FILE)
         print(f"Loaded embeddings: 2D={embedding_2d.shape}, 3D={embedding_3d.shape}")
@@ -166,7 +177,7 @@ def run_pipeline(
 def main():
     """Command-line interface for the pipeline."""
     parser = argparse.ArgumentParser(
-        description='Semiprime UMAP Visualization Pipeline',
+        description='Semiprime Dimensionality Reduction Visualization Pipeline',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
@@ -178,6 +189,12 @@ def main():
         '--num-primes', type=int, default=config.NUM_RESIDUE_PRIMES,
         help='Number of primes for residue computation'
     )
+    parser.add_argument(
+        '--method', type=str, default=config.DIMRED_METHOD,
+        choices=['umap', 'pacmap'],
+        help='Dimensionality reduction method'
+    )
+    # UMAP-specific parameters
     parser.add_argument(
         '--umap-neighbors', type=int, default=config.UMAP_N_NEIGHBORS,
         help='UMAP n_neighbors parameter'
@@ -191,13 +208,27 @@ def main():
         choices=['euclidean', 'cosine'],
         help='UMAP distance metric'
     )
+    # PacMAP-specific parameters
+    parser.add_argument(
+        '--pacmap-neighbors', type=int, default=config.PACMAP_N_NEIGHBORS,
+        help='PacMAP n_neighbors parameter'
+    )
+    parser.add_argument(
+        '--pacmap-mn-ratio', type=float, default=config.PACMAP_MN_RATIO,
+        help='PacMAP MN_ratio parameter (ratio of mid-near pairs to neighbor pairs)'
+    )
+    parser.add_argument(
+        '--pacmap-fp-ratio', type=float, default=config.PACMAP_FP_RATIO,
+        help='PacMAP FP_ratio parameter (ratio of further pairs to neighbor pairs)'
+    )
+    # Skip flags
     parser.add_argument(
         '--skip-difficulty', action='store_true',
         help='Skip difficulty metric computation'
     )
     parser.add_argument(
-        '--skip-umap', action='store_true',
-        help='Skip UMAP (load existing embeddings)'
+        '--skip-dimred', action='store_true',
+        help='Skip dimensionality reduction (load existing embeddings)'
     )
     parser.add_argument(
         '--skip-viz', action='store_true',
@@ -211,15 +242,20 @@ def main():
     args = parser.parse_args()
 
     # Update config with CLI arguments
+    config.DIMRED_METHOD = args.method
     config.UMAP_N_NEIGHBORS = args.umap_neighbors
     config.UMAP_MIN_DIST = args.umap_min_dist
     config.UMAP_METRIC = args.umap_metric
+    config.PACMAP_N_NEIGHBORS = args.pacmap_neighbors
+    config.PACMAP_MN_RATIO = args.pacmap_mn_ratio
+    config.PACMAP_FP_RATIO = args.pacmap_fp_ratio
 
     run_pipeline(
         max_n=args.max_n,
         num_residue_primes=args.num_primes,
+        dimred_method=args.method,
         skip_difficulty=args.skip_difficulty,
-        skip_umap=args.skip_umap,
+        skip_dimred=args.skip_dimred,
         skip_viz=args.skip_viz,
         load_existing=args.load_existing
     )
