@@ -16,8 +16,8 @@ from .visualize import create_interactive_html, create_static_plots, create_3d_v
 
 
 def run_pipeline(
-    max_n: int = None,
-    num_residue_primes: int = None,
+    max_n: int | None = None,
+    num_residue_primes: int | None = None,
     skip_difficulty: bool = False,
     skip_umap: bool = False,
     skip_viz: bool = False,

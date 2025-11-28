@@ -13,7 +13,7 @@ def get_primes_up_to(n: int) -> np.ndarray:
     return np.array(list(primerange(2, n + 1)), dtype=np.int64)
 
 
-def generate_semiprimes(max_n: int = None) -> Generator[tuple[int, int, int], None, None]:
+def generate_semiprimes(max_n: int | None = None) -> Generator[tuple[int, int, int], None, None]:
     """
     Generate all semiprimes n = p * q where p <= q and n < max_n.
 

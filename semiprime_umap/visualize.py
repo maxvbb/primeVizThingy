@@ -16,7 +16,7 @@ from . import config
 def create_interactive_html(
     df: pd.DataFrame,
     embedding_2d: np.ndarray,
-    output_path: str = None
+    output_path: str | None = None
 ):
     """
     Create interactive Plotly HTML visualization with dropdown for color schemes.
@@ -207,7 +207,7 @@ def create_interactive_html(
 def create_static_plots(
     df: pd.DataFrame,
     embedding_2d: np.ndarray,
-    output_dir: str = None
+    output_dir: str | None = None
 ):
     """Create static PNG plots with different colorings."""
     if output_dir is None:
@@ -264,7 +264,7 @@ def create_static_plots(
 def create_3d_visualization(
     df: pd.DataFrame,
     embedding_3d: np.ndarray,
-    output_path: str = None
+    output_path: str | None = None
 ):
     """Create 3D interactive visualization."""
     if output_path is None:

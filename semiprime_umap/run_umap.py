@@ -11,10 +11,10 @@ from . import config
 def run_umap_reduction(
     feature_matrix: np.ndarray,
     n_components: int = 2,
-    n_neighbors: int = None,
-    min_dist: float = None,
-    metric: str = None,
-    random_state: int = None,
+    n_neighbors: int | None = None,
+    min_dist: float | None = None,
+    metric: str | None = None,
+    random_state: int | None = None,
     verbose: bool = True
 ) -> np.ndarray:
     """
@@ -90,8 +90,8 @@ def run_umap_2d_and_3d(
 def save_embeddings(
     embedding_2d: np.ndarray,
     embedding_3d: np.ndarray,
-    path_2d: str = None,
-    path_3d: str = None
+    path_2d: str | None = None,
+    path_3d: str | None = None
 ):
     """Save UMAP embeddings to numpy files."""
     if path_2d is None:
@@ -107,8 +107,8 @@ def save_embeddings(
 
 
 def load_embeddings(
-    path_2d: str = None,
-    path_3d: str = None
+    path_2d: str | None = None,
+    path_3d: str | None = None
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Load UMAP embeddings from numpy files."""
     if path_2d is None:

@@ -59,7 +59,7 @@ def compute_fermat_iterations_parallel(
 
 def compute_fermat_iterations(
     n_values: np.ndarray,
-    max_iter: int = None
+    max_iter: int | None = None
 ) -> np.ndarray:
     """
     Compute Fermat factorization iterations for semiprimes.

@@ -19,8 +19,8 @@ def get_first_k_primes(k: int) -> np.ndarray:
 
 def compute_residue_vectors(
     n_values: np.ndarray,
-    num_primes: int = None,
-    batch_size: int = None,
+    num_primes: int | None = None,
+    batch_size: int | None = None,
     normalize: bool = True
 ) -> np.ndarray:
     """
@@ -84,7 +84,7 @@ def compute_residue_vectors(
 
 def compute_residue_vectors_sparse(
     n_values: np.ndarray,
-    num_primes: int = None,
+    num_primes: int | None = None,
     threshold: float = 0.1
 ) -> 'scipy.sparse.csr_matrix':
     """
