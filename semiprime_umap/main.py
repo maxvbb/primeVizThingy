@@ -80,9 +80,9 @@ def run_pipeline(
             step_start = time.time()
 
             difficulty_metrics = compute_all_difficulty_metrics(
-                df['n'].values,
-                df['p'].values,
-                df['q'].values
+                np.asarray(df['n']),
+                np.asarray(df['p']),
+                np.asarray(df['q'])
             )
 
             for col, values in difficulty_metrics.items():
@@ -110,7 +110,7 @@ def run_pipeline(
         step_start = time.time()
 
         residue_matrix = compute_residue_vectors(
-            df['n'].values,
+            np.asarray(df['n']),
             num_primes=num_residue_primes
         )
         print(f"Residue vectors computed in {time.time() - step_start:.1f}s")

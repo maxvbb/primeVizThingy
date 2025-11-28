@@ -2,7 +2,8 @@
 
 import numpy as np
 import umap
-from typing import Optional, Tuple
+from typing import Tuple
+from pathlib import Path
 import gc
 
 from . import config
@@ -55,7 +56,7 @@ def run_umap_reduction(
         low_memory=True  # Use less memory for large datasets
     )
 
-    embedding = reducer.fit_transform(feature_matrix)
+    embedding: np.ndarray = np.asarray(reducer.fit_transform(feature_matrix))
 
     print(f"UMAP complete. Output shape: {embedding.shape}")
     return embedding.astype(np.float32)
@@ -90,34 +91,30 @@ def run_umap_2d_and_3d(
 def save_embeddings(
     embedding_2d: np.ndarray,
     embedding_3d: np.ndarray,
-    path_2d: str | None = None,
-    path_3d: str | None = None
+    path_2d: str | Path | None = None,
+    path_3d: str | Path | None = None
 ):
     """Save UMAP embeddings to numpy files."""
-    if path_2d is None:
-        path_2d = config.UMAP_2D_FILE
-    if path_3d is None:
-        path_3d = config.UMAP_3D_FILE
+    save_path_2d: str | Path = path_2d if path_2d is not None else config.UMAP_2D_FILE
+    save_path_3d: str | Path = path_3d if path_3d is not None else config.UMAP_3D_FILE
 
-    np.save(path_2d, embedding_2d)
-    np.save(path_3d, embedding_3d)
+    np.save(save_path_2d, embedding_2d)
+    np.save(save_path_3d, embedding_3d)
 
-    print(f"Saved 2D embedding to {path_2d}")
-    print(f"Saved 3D embedding to {path_3d}")
+    print(f"Saved 2D embedding to {save_path_2d}")
+    print(f"Saved 3D embedding to {save_path_3d}")
 
 
 def load_embeddings(
-    path_2d: str | None = None,
-    path_3d: str | None = None
+    path_2d: str | Path | None = None,
+    path_3d: str | Path | None = None
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Load UMAP embeddings from numpy files."""
-    if path_2d is None:
-        path_2d = config.UMAP_2D_FILE
-    if path_3d is None:
-        path_3d = config.UMAP_3D_FILE
+    load_path_2d: str | Path = path_2d if path_2d is not None else config.UMAP_2D_FILE
+    load_path_3d: str | Path = path_3d if path_3d is not None else config.UMAP_3D_FILE
 
-    embedding_2d = np.load(path_2d)
-    embedding_3d = np.load(path_3d)
+    embedding_2d = np.load(load_path_2d)
+    embedding_3d = np.load(load_path_3d)
 
     return embedding_2d, embedding_3d
 

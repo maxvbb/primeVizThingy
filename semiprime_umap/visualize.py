@@ -16,7 +16,7 @@ from . import config
 def create_interactive_html(
     df: pd.DataFrame,
     embedding_2d: np.ndarray,
-    output_path: str | None = None
+    output_path: str | Path | None = None
 ):
     """
     Create interactive Plotly HTML visualization with dropdown for color schemes.
@@ -26,8 +26,7 @@ def create_interactive_html(
         embedding_2d: 2D UMAP coordinates
         output_path: Path to save HTML file
     """
-    if output_path is None:
-        output_path = config.VISUALIZATION_FILE
+    save_path: str | Path = output_path if output_path is not None else config.VISUALIZATION_FILE
 
     print(f"Creating interactive visualization for {len(df):,} points...")
 
@@ -200,21 +199,18 @@ def create_interactive_html(
     )
 
     # Save to HTML
-    fig.write_html(str(output_path), include_plotlyjs=True)
-    print(f"Saved interactive visualization to {output_path}")
+    fig.write_html(str(save_path), include_plotlyjs=True)
+    print(f"Saved interactive visualization to {save_path}")
 
 
 def create_static_plots(
     df: pd.DataFrame,
     embedding_2d: np.ndarray,
-    output_dir: str | None = None
+    output_dir: str | Path | None = None
 ):
     """Create static PNG plots with different colorings."""
-    if output_dir is None:
-        output_dir = config.STATIC_PLOTS_DIR
-
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    save_dir: Path = Path(output_dir) if output_dir is not None else config.STATIC_PLOTS_DIR
+    save_dir.mkdir(parents=True, exist_ok=True)
 
     # Sample for static plots
     max_points = 50_000
@@ -255,20 +251,19 @@ def create_static_plots(
         ax.set_title(f'Semiprime UMAP: {title}')
 
         plt.tight_layout()
-        plt.savefig(output_dir / filename, dpi=150, bbox_inches='tight')
+        plt.savefig(save_dir / filename, dpi=150, bbox_inches='tight')
         plt.close()
 
-    print(f"Saved {len(plot_configs)} static plots to {output_dir}")
+    print(f"Saved {len(plot_configs)} static plots to {save_dir}")
 
 
 def create_3d_visualization(
     df: pd.DataFrame,
     embedding_3d: np.ndarray,
-    output_path: str | None = None
+    output_path: str | Path | None = None
 ):
     """Create 3D interactive visualization."""
-    if output_path is None:
-        output_path = config.OUTPUT_DIR / "visualization_3d.html"
+    save_path: str | Path = output_path if output_path is not None else config.OUTPUT_DIR / "visualization_3d.html"
 
     print(f"Creating 3D visualization...")
 
@@ -314,8 +309,8 @@ def create_3d_visualization(
         height=800
     )
 
-    fig.write_html(str(output_path), include_plotlyjs=True)
-    print(f"Saved 3D visualization to {output_path}")
+    fig.write_html(str(save_path), include_plotlyjs=True)
+    print(f"Saved 3D visualization to {save_path}")
 
 
 if __name__ == "__main__":

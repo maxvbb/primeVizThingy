@@ -86,7 +86,7 @@ def compute_residue_vectors_sparse(
     n_values: np.ndarray,
     num_primes: int | None = None,
     threshold: float = 0.1
-) -> 'scipy.sparse.csr_matrix':
+):
     """
     Compute sparse residue vectors (optional, for very large datasets).
 
