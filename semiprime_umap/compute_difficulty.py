@@ -17,8 +17,13 @@ def fermat_iterations_single(n: int, max_iter: int) -> int:
     Fermat's method: find a such that a^2 - n is a perfect square.
     Start with a = ceil(sqrt(n)) and increment until b^2 = a^2 - n.
 
-    Returns number of iterations, or max_iter + 1 if not found.
+    Returns number of iterations (1-indexed), or max_iter + 1 if not found.
+    Always returns >= 1 (never 0).
     """
+    # Guard against invalid max_iter (ensures we never return 0)
+    if max_iter < 1:
+        max_iter = 1
+
     if n % 2 == 0:
         return 1  # Trivially factorable
 
@@ -73,6 +78,10 @@ def compute_fermat_iterations(
     """
     if max_iter is None:
         max_iter = config.FERMAT_MAX_ITERATIONS
+
+    # Ensure max_iter is positive to avoid returning 0
+    if max_iter < 1:
+        max_iter = 1
 
     print(f"Computing Fermat iterations for {len(n_values):,} semiprimes (max={max_iter:,})...")
 
