@@ -71,7 +71,7 @@ def compute_basic_metadata(semiprimes: list[tuple[int, int, int]]) -> dict:
     log_ratio = np.log(q_arr / p_arr)
 
     # bit_length of n
-    bit_length = np.array([n.bit_length() for n in n_arr], dtype=np.int32)
+    bit_length = np.array([int(n).bit_length() for n in n_arr], dtype=np.int32)
 
     # factor_gap: q - p
     factor_gap = q_arr - p_arr
